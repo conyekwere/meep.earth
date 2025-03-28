@@ -1,5 +1,68 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Clock, MapPin, Mail, Phone, MapPin as LocationIcon, Send, Apple } from "lucide-react";
+
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+
+// Card component with follow effect
+function FollowCard({ children, className = "" }) {
+    const ref = useRef(null);
+    const [hovered, setHovered] = useState(false);
+  
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+  
+    const mouseX = useSpring(x, { stiffness: 500, damping: 100 });
+    const mouseY = useSpring(y, { stiffness: 500, damping: 100 });
+  
+    const rotateX = useTransform(mouseY, [-50, 50], [5, -5]);
+    const rotateY = useTransform(mouseX, [-50, 50], [-5, 5]);
+  
+    function handleMouseMove(e) {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+  
+      x.set(e.clientX - centerX);
+      y.set(e.clientY - centerY);
+    }
+  
+    function handleMouseLeave() {
+      x.set(0);
+      y.set(0);
+      setHovered(false);
+    }
+    
+    // This return statement was missing
+    return (
+      <motion.div
+        ref={ref}
+        className={`relative ${className}`}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          perspective: 1000,
+          transformStyle: "preserve-3d",
+        }}
+      >
+        <motion.div
+          style={{
+            rotateX: hovered ? rotateX : 0,
+            rotateY: hovered ? rotateY : 0,
+            transformStyle: "preserve-3d",
+          }}
+          transition={{
+            type: "spring",
+            damping: 20,
+            stiffness: 300,
+          }}
+        >
+          {children}
+        </motion.div>
+      </motion.div>
+    );
+  }
 
 // Apple Icon Component
 function AppleIcon() {
@@ -94,6 +157,7 @@ function Button({ children, variant = "primary", className = "", icon = null }) 
 // App Screen Component
 function AppScreen({ image, alt, className = "", width = "auto" }) {
   return (
+    
     <div className={`${className} overflow-hidden rounded-3xl shadow-2xl`}>
       <img 
         src={image} 
@@ -166,6 +230,7 @@ function HomePage() {
             {/* Right Content - Phone Screenshots and Cards */}
             <div className="lg:w-1/2 relative h-[600px]">
               {/* Main App Screen - Set Location */}
+              <FollowCard>
               <AppScreen 
                 image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.02.59-WPEMLI0GQCZcs6NFZ7TxCkgDPfrO6o.png"
                 alt="Set meeting point interface"
@@ -217,6 +282,8 @@ function HomePage() {
               {/* Decorative Elements */}
               <div className="absolute top-10 right-0 text-blue-400 text-2xl">✦</div>
               <div className="absolute bottom-40 left-40 text-green-400 text-2xl">✦</div>
+
+              </FollowCard>
             </div>
           </div>
         </div>
