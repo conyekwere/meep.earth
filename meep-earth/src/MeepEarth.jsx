@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import FlipCard from "./FlipCard";
 import { Clock, MapPin, Mail, Phone, MapPin as LocationIcon, Send, Apple } from "lucide-react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 
@@ -57,6 +58,16 @@ const globalStyles = `
     transform: translateZ(120px);
     transition: transform 0.3s ease;
   }
+
+
+  .depth-rotate-1{
+     transform: translateZ(20px) rotate(12deg);
+     transition: transform 0.3s ease;
+  }
+ .depth-rotate-2{
+    transform: translateZ(20px) rotate(-24deg);
+    transition: transform 0.3s ease;
+  }
   
   /* Enhanced parallax with different movement rates */
   .parallax-slow { transform: translateZ(-10px); }
@@ -73,6 +84,103 @@ const globalStyles = `
     perspective: 1000px;
   }
 `;
+
+
+
+function FollowCardWithFlip() {
+    // State to track which app screen should be active initially
+    const [activeAppIndex, setActiveAppIndex] = useState(0);
+    
+    // Images for the app screens
+    const appScreens = [
+      {
+        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.03.41-8tVWKuWU6bglTPa32JhlUZiGqCm3hf.png",
+        alt: "Map view",
+        title: "Find meeting points"
+      },
+      {
+        image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.02.59-WPEMLI0GQCZcs6NFZ7TxCkgDPfrO6o.png",
+        alt: "Location setting",
+        title: "Set your location"
+      }
+    ];
+    
+    // Auto-swap views every 5 seconds
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setActiveAppIndex((prev) => (prev === 0 ? 1 : 0));
+      }, 5000);
+      
+      return () => clearInterval(interval);
+    }, []);
+    
+    // Create parallax background elements
+    const ParallaxBg = () => (
+      <>
+        <div className="absolute top-10 left-10 text-blue-400 text-3xl parallax-fast depth-1">✦</div>
+        <div className="absolute bottom-10 right-10 text-green-400 text-2xl parallax-medium depth-2">✦</div>
+        <div className="absolute top-1/2 right-20 text-purple-400 text-xl parallax-slow depth-3">✦</div>
+      </>
+    );
+    
+    // Create animated label for the card
+    const AnimatedLabel = ({ title, isActive }) => (
+      <motion.div 
+        className="absolute -bottom-12 left-0 right-0 text-center text-white font-medium"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ 
+          opacity: isActive ? 1 : 0.6, 
+          y: isActive ? 0 : -5,
+          scale: isActive ? 1 : 0.95
+        }}
+        transition={{ duration: 0.4 }}
+      >
+        {title}
+      </motion.div>
+    );
+    
+    // Create the front view
+    const FrontView = () => (
+      <div className="relative w-full h-full overflow-hidden">
+        <ParallaxBg />
+        <AppScreen 
+          image={appScreens[0].image}
+          alt={appScreens[0].alt}
+          className="w-full h-full"
+          isActive={true}
+        />
+        <AnimatedLabel title={appScreens[0].title} isActive={activeAppIndex === 0} />
+      </div>
+    );
+    
+    // Create the back view
+    const BackView = () => (
+      <div className="relative w-full h-full overflow-hidden">
+        <ParallaxBg />
+        <AppScreen 
+          image={appScreens[1].image}
+          alt={appScreens[1].alt}
+          className="w-full h-full"
+          isActive={true}
+        />
+        <AnimatedLabel title={appScreens[1].title} isActive={activeAppIndex === 1} />
+      </div>
+    );
+    
+    return (
+      <FollowCard className="w-80 h-[600px]">
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-[85%] relative">
+            <FlipCard
+              front={<FrontView />}
+              back={<BackView />}
+              depth={5}
+            />
+          </div>
+        </div>
+      </FollowCard>
+    );
+  }
 
 
 // Enhanced FollowCard component with 3D effect and parallax
@@ -274,8 +382,6 @@ function AppleIcon() {
 }
 
 
-
-
 // Venue Card Component
 const VenueCard = ({ image, name, time, type, emojiImage, className = "" }) => {
     // State for 3D and hover effects
@@ -351,10 +457,10 @@ const VenueCard = ({ image, name, time, type, emojiImage, className = "" }) => {
                 transform: isHovered ? `translateZ(30px) translateX(${mouseX * 0.05}px) translateY(${mouseY * 0.05}px)` : "translateZ(0)",
                 transformStyle: "preserve-3d"
                 }}
-                className={`absolute -top-2 z-10 transform transition-all duration-300 ${
-                type === "Park" ? "right-6" : 
-                type === "Bar" ? "right-6" : 
-                type === "Restaurant" ? "right-6" : "right-6"
+                className={`absolute  z-10 transform transition-all duration-300 ${
+                type === "Park" ? "left-2 -top-2" : 
+                type === "Bar" ? "right-6 top-4" : 
+                type === "Restaurant" ? "right-8 -top-4" : "right-6 -top-4"
                 }`}
             >
                 <img 
@@ -362,10 +468,10 @@ const VenueCard = ({ image, name, time, type, emojiImage, className = "" }) => {
                 alt="Venue type"
                 width={40}
                 height={40}
-                className={`filter drop-shadow-lg depth-1 ${
-                    type === "Park" ? "rotate-[8deg]" : 
-                    type === "Bar" ? "rotate-[-12deg]" : 
-                    type === "Restaurant" ? "rotate-[15deg]" : "rotate-[12deg]"
+                className={`filter drop-shadow-lg ${
+                    type === "Park" ? "depth-rotate-1" : 
+                    type === "Bar" ? "depth-rotate-1" : 
+                    type === "Restaurant" ? "depth-rotate-2" : "depth-rotate-2"
                 }`}
                 />
             </div>
@@ -427,7 +533,6 @@ const VenueCard = ({ image, name, time, type, emojiImage, className = "" }) => {
             </div>
           </div>
           
-          {/* Get Directions button - hidden but activates on click */}
         </div>
       </div>
     );
@@ -471,14 +576,23 @@ function Button({ children, variant = "primary", className = "", icon = null }) 
 // Enhanced AppScreen Component with Toggle Functionality
 function AppScreen({ image, alt, className = "", width = "auto", isActive = false }) {
     return (
-      <div 
+      <motion.div 
         className={`${className} overflow-hidden rounded-3xl shadow-2xl transition-all duration-500`}
-        style={{
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ 
           opacity: isActive ? 1 : 0,
-          transform: isActive ? "translateY(0) scale(1)" : "translateY(20px) scale(0.9)",
-          visibility: isActive ? "visible" : "hidden",
-          transformStyle: "preserve-3d"
+          scale: isActive ? 1 : 0.9,
+          y: isActive ? 0 : 20,
+          visibility: isActive ? "visible" : "hidden"
         }}
+        transition={{ 
+          type: "spring", 
+          damping: 20, 
+          stiffness: 150, 
+          mass: 0.8,
+          duration: 0.5 
+        }}
+        style={{ transformStyle: "preserve-3d" }}
       >
         <img 
           src={image} 
@@ -486,7 +600,7 @@ function AppScreen({ image, alt, className = "", width = "auto", isActive = fals
           width={width} 
           className="w-full h-auto" 
         />
-      </div>
+      </motion.div>
     );
   }
   
@@ -564,9 +678,9 @@ function HomePage() {
 
                   {/* Parallax background elements */}
                   <div className="parallax-bg">
-                    <div className="absolute top-10 right-0 text-blue-400 text-2xl parallax-reverse depth-4">✦</div>
-                    <div className="absolute top-40 left-0 text-green-400 text-2xl parallax-reverse depth-4">✦</div>
-                    <div className="absolute bottom-20 right-40 text-purple-400 text-2xl parallax-reverse depth-4">✦</div>
+                    <div className="absolute top-10 -right-20 text-blue-400 text-2xl parallax-reverse depth-4">✦</div>
+                    <div className="absolute top-40 -left-20 text-green-400 text-2xl parallax-reverse depth-4">✦</div>
+                    <div className="absolute -bottom-96  left-10 text-purple-400 text-2xl parallax-reverse depth-4">✦</div>
                   </div>
                       {/* App Screen - Location Setting */}
                     <AppScreen 
@@ -580,7 +694,7 @@ function HomePage() {
                     <AppScreen 
                       image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.03.41-8tVWKuWU6bglTPa32JhlUZiGqCm3hf.png"
                       alt="Map view with meeting points"
-                      className="absolute -right-8 -top-16 w-72 transform depth-5"
+                      className="absolute right-0 -top-16 w-72 transform depth-5"
                       isActive={activeScreen === 'map'}
                     />
   
@@ -593,7 +707,7 @@ function HomePage() {
                       time="16"
                       type="Park"
                       emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-2q7TGSGt47nkaouGs0DwB9h0gg6eix.png"
-                      className="absolute top-48 right-10   w-48 transform z-30 depth-2"
+                      className="absolute top-48 right-20   w-48 transform z-30 depth-2"
                     />
   
                     {/* Odd Sister */}
@@ -603,7 +717,7 @@ function HomePage() {
                       time="12"
                       type="Bar"
                       emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JBbuSJn72ovTW1nABeBSEWfsNKbEB0.png"
-                      className="absolute left-80 -top-40 w-40 transform z-30 depth-2"
+                      className="absolute left-72 -top-40 w-40 transform z-30 depth-2"
                     />
   
                     {/* The Butcher's Daughter */}
@@ -613,7 +727,7 @@ function HomePage() {
                       time="8"
                       type="Restaurant"
                       emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ECW9CxGaV0gga9kZmcNIX4qqPkvPtg.png"
-                      className="absolute left-80 bottom-6 w-40 transform z-30 depth-2"
+                      className="absolute left-72 bottom-6 w-40 transform z-30 depth-2"
                     />
                   </div>
                 </FollowCard>
@@ -634,7 +748,7 @@ function ContactPage() {
     <div className="min-h-screen bg-black text-white py-20 px-8">
       <div className="container mx-auto">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold mb-8 tracking-tight">Contact Us</h1>
+          <h1 className="text-5xl font-bold mb-8 tracking-tight">Advertise on Meep</h1>
           <p className="text-xl text-gray-300 mb-12">
             We'd love to hear from you. Send us a message and we'll respond as soon as possible.
           </p>
