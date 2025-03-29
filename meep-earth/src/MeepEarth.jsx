@@ -1,64 +1,263 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Clock, MapPin, Mail, Phone, MapPin as LocationIcon, Send, Apple } from "lucide-react";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
-// Card component with follow effect
+// Add global styles for the 3D card effects
+const globalStyles = `
+  .card-wrap {
+    transform-style: preserve-3d;
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform; /* Performance optimization */
+  }
+  
+  .card {
+    position: relative;
+    transform-style: preserve-3d;
+    border-radius: 16px;
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform, box-shadow; /* Performance optimization */
+    backface-visibility: hidden; /* Prevents flickering */
+  }
+  
+  .parallax-bg {
+    transform-style: preserve-3d;
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform; /* Performance optimization */
+    backface-visibility: hidden; /* Prevents flickering */
+  }
+  
+  .content {
+    transform-style: preserve-3d;
+    will-change: transform; /* Performance optimization */
+  }
+  
+  /* Enhanced depth layers with smoother transitions */
+  .depth-1 { 
+    transform: translateZ(20px);
+    transition: transform 0.3s ease;
+  }
+  .depth-2 { 
+    transform: translateZ(40px);
+    transition: transform 0.3s ease;
+  }
+  .depth-3 { 
+    transform: translateZ(60px);
+    transition: transform 0.3s ease;
+  }
+  .depth-4 { 
+    transform: translateZ(80px);
+    transition: transform 0.3s ease;
+  }
+  .depth-5 { 
+    transform: translateZ(100px);
+    transition: transform 0.3s ease;
+  }
+  .depth-6 { 
+    transform: translateZ(120px);
+    transition: transform 0.3s ease;
+  }
+  
+  /* Enhanced parallax with different movement rates */
+  .parallax-slow { transform: translateZ(-10px); }
+  .parallax-medium { transform: translateZ(-20px); }
+  .parallax-fast { transform: translateZ(-30px); }
+  
+  /* Hardware acceleration for smoother animations */
+  .card-wrap, .card, .parallax-bg, .content, [class^="depth-"] {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
+  }
+`;
+
+
+// Enhanced FollowCard component with 3D effect and parallax
 function FollowCard({ children, className = "" }) {
     const ref = useRef(null);
     const [hovered, setHovered] = useState(false);
+    const [width, setWidth] = useState(0);
+    const [height, setHeight] = useState(0);
   
     const x = useMotionValue(0);
     const y = useMotionValue(0);
   
-    const mouseX = useSpring(x, { stiffness: 500, damping: 100 });
-    const mouseY = useSpring(y, { stiffness: 500, damping: 100 });
+    // Enhanced spring configuration for ultra-smooth parallax
+    const springConfig = { 
+      type: "spring",
+      damping: 20, 
+      stiffness: 120,
+      mass: 0.8,
+      restSpeed: 0.001,
+      restDelta: 0.001
+    };
+    
+    const mouseX = useSpring(x, springConfig);
+    const mouseY = useSpring(y, springConfig);
   
-    const rotateX = useTransform(mouseY, [-50, 50], [5, -5]);
-    const rotateY = useTransform(mouseX, [-50, 50], [-5, 5]);
+    // Optimized rotation range for smoother effect
+    const rotateX = useTransform(mouseY, [-height/2, height/2], [10, -10]);
+    const rotateY = useTransform(mouseX, [-width/2, width/2], [-10, 10]);
+    
+    // Enhanced parallax effect for background elements with improved smoothness
+    const translateX = useTransform(mouseX, [-width/2, width/2], [-15, 15]);
+    const translateY = useTransform(mouseY, [-height/2, height/2], [-15, 15]);
+    
+    // Secondary parallax layers with different movement rates
+    const translateXSlow = useTransform(mouseX, [-width/2, width/2], [-8, 8]);
+    const translateYSlow = useTransform(mouseY, [-height/2, height/2], [-8, 8]);
+    
+    const translateXFast = useTransform(mouseX, [-width/2, width/2], [-25, 25]);
+    const translateYFast = useTransform(mouseY, [-height/2, height/2], [-25, 25]);
+    
+    React.useEffect(() => {
+      if (ref.current) {
+        setWidth(ref.current.offsetWidth);
+        setHeight(ref.current.offsetHeight);
+      }
+      
+      // Debounced resize handler for better performance
+      let resizeTimer;
+      function handleResize() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          if (ref.current) {
+            setWidth(ref.current.offsetWidth);
+            setHeight(ref.current.offsetHeight);
+          }
+        }, 100);
+      }
+      
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        clearTimeout(resizeTimer);
+      }
+    }, []);
   
+    // Optimized mouse tracking with rate limiting
     function handleMouseMove(e) {
       if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-  
-      x.set(e.clientX - centerX);
-      y.set(e.clientY - centerY);
+      
+      requestAnimationFrame(() => {
+        const rect = ref.current.getBoundingClientRect();
+        
+        // Calculate mouse position relative to card center
+        const newX = e.clientX - rect.left - width/2;
+        const newY = e.clientY - rect.top - height/2;
+        
+        // Apply smoothing to mouse input itself
+        x.set(newX);
+        y.set(newY);
+      });
     }
   
+    // Enhanced transition timing for smoother exit
     function handleMouseLeave() {
-      x.set(0);
-      y.set(0);
+      // Smoother transition out with a gentle easing curve
+      x.set(0, {
+        type: "spring",
+        damping: 25,
+        stiffness: 200,
+      });
+      
+      y.set(0, {
+        type: "spring",
+        damping: 25,
+        stiffness: 200,
+      });
+      
       setHovered(false);
     }
-    
-    // This return statement was missing
+  
     return (
       <motion.div
         ref={ref}
-        className={`relative ${className}`}
+        className={`w-1/2 card-wrap ${className}`}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleMouseLeave}
         style={{
-          perspective: 1000,
+          perspective: 1000, // Increased perspective for more pronounced effect
           transformStyle: "preserve-3d",
+          cursor: "pointer",
         }}
       >
         <motion.div
+          className="card"
           style={{
             rotateX: hovered ? rotateX : 0,
             rotateY: hovered ? rotateY : 0,
             transformStyle: "preserve-3d",
-          }}
-          transition={{
-            type: "spring",
-            damping: 20,
-            stiffness: 300,
+            transition: hovered 
+              ? "none" 
+              : "all 0.8s cubic-bezier(0.23, 1, 0.32, 1)", // Enhanced bezier curve for better easing
           }}
         >
-          {children}
+          {/* Multiple background elements with different parallax depths */}
+          <motion.div
+            className="parallax-bg parallax-slow"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 0,
+              pointerEvents: "none",
+              translateX: hovered ? translateXSlow : 0,
+              translateY: hovered ? translateYSlow : 0,
+              transition: hovered ? "none" : "all 0.8s cubic-bezier(0.23, 1, 0.32, 1)"
+            }}
+          />
+          
+          <motion.div
+            className="parallax-bg parallax-medium"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 0,
+              pointerEvents: "none",
+              translateX: hovered ? translateX : 0,
+              translateY: hovered ? translateY : 0,
+              transition: hovered ? "none" : "all 0.8s cubic-bezier(0.23, 1, 0.32, 1)"
+            }}
+          />
+          
+          <motion.div
+            className="parallax-bg parallax-fast"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 0,
+              pointerEvents: "none",
+              translateX: hovered ? translateXFast : 0,
+              translateY: hovered ? translateYFast : 0,
+              transition: hovered ? "none" : "all 0.8s cubic-bezier(0.23, 1, 0.32, 1)"
+            }}
+          />
+          
+          {/* Content with enhanced transition */}
+          <motion.div 
+            className="content" 
+            style={{ 
+              position: "relative", 
+              zIndex: 1,
+              transformStyle: "preserve-3d",
+              transition: hovered ? "none" : "all 0.8s cubic-bezier(0.23, 1, 0.32, 1)"
+            }}
+          >
+            {children}
+          </motion.div>
         </motion.div>
       </motion.div>
     );
@@ -74,56 +273,171 @@ function AppleIcon() {
   );
 }
 
+
+
+
 // Venue Card Component
-function VenueCard({ image, name, time, type, emoji, className = "" }) {
-  return (
-    <div className={`${className} bg-white rounded-2xl overflow-hidden shadow-xl border border-gray-100 transform`}>
-      <div className="p-4">
-        <div className="flex items-center gap-3">
-          <img
-            src={image || "/placeholder.svg"}
-            alt={name}
-            className="w-10 h-10 rounded-lg object-cover"
-          />
-          <div>
-            <h3 className="font-bold text-base text-black">{name}</h3>
-            <div className="flex items-center text-gray-500 mt-1 text-xs">
-              <Clock className="w-3 h-3 mr-1" />
+const VenueCard = ({ image, name, time, type, emojiImage, className = "" }) => {
+    // State for 3D and hover effects
+    const [isHovered, setIsHovered] = useState(false);
+    const cardRef = useRef(null);
+    const [width, setWidth] = useState(0);
+    const [height, setHeight] = useState(0);
+    const [mouseX, setMouseX] = useState(0);
+    const [mouseY, setMouseY] = useState(0);
+    
+    // Effect to get card dimensions
+    useEffect(() => {
+      if (cardRef.current) {
+        setWidth(cardRef.current.offsetWidth);
+        setHeight(cardRef.current.offsetHeight);
+      }
+      
+      // Handle window resize
+      const handleResize = () => {
+        if (cardRef.current) {
+          setWidth(cardRef.current.offsetWidth);
+          setHeight(cardRef.current.offsetHeight);
+        }
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    
+    // Mouse event handlers
+    const handleMouseMove = (e) => {
+      if (!cardRef.current) return;
+      const rect = cardRef.current.getBoundingClientRect();
+      
+      // Calculate mouse position relative to card center
+      const x = e.clientX - rect.left - width/2;
+      const y = e.clientY - rect.top - height/2;
+      
+      setMouseX(x);
+      setMouseY(y);
+    };
+    
+    // Calculate card rotation and shadows based on mouse position
+    const rotateY = isHovered ? mouseX / (width/2) * 10 : 0;
+    const rotateX = isHovered ? -mouseY / (height/2) * 10 : 0;
+    const translateZ = isHovered ? 20 : 0;
+    
+    // Shadow intensity based on mouse position
+    const shadowBlur = isHovered ? 25 : 10;
+    const shadowOffset = isHovered ? 15 : 5;
+    
+    return (
+      <div 
+        ref={cardRef}
+        className={`${className} relative transform transition-all duration-300`}
+        style={{
+          perspective: "800px",
+          transformStyle: "preserve-3d"
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setMouseX(0);
+          setMouseY(0);
+        }}
+        onMouseMove={handleMouseMove}
+      >
+
+        {/* Floating emoji indicator */}
+        {emojiImage && (
+            <div 
+                style={{
+                transform: isHovered ? `translateZ(30px) translateX(${mouseX * 0.05}px) translateY(${mouseY * 0.05}px)` : "translateZ(0)",
+                transformStyle: "preserve-3d"
+                }}
+                className={`absolute -top-2 z-10 transform transition-all duration-300 ${
+                type === "Park" ? "right-6" : 
+                type === "Bar" ? "right-6" : 
+                type === "Restaurant" ? "right-6" : "right-6"
+                }`}
+            >
+                <img 
+                src={emojiImage}
+                alt="Venue type"
+                width={40}
+                height={40}
+                className={`filter drop-shadow-lg depth-1 ${
+                    type === "Park" ? "rotate-[8deg]" : 
+                    type === "Bar" ? "rotate-[-12deg]" : 
+                    type === "Restaurant" ? "rotate-[15deg]" : "rotate-[12deg]"
+                }`}
+                />
+            </div>
+        )}
+
+        {/* Card container with 3D transforms */}
+        <div
+          className="bg-black rounded-2xl overflow-hidden shadow-xl border border-gray-700 transform transition-all duration-300 relative"
+          style={{
+            transform: `rotateY(${rotateY}deg) rotateX(${rotateX}deg) translateZ(${translateZ}px)`,
+            boxShadow: isHovered 
+              ? `rgba(0, 0, 0, 0.3) 0px ${shadowOffset}px ${shadowBlur}px 0px, rgba(0, 0, 0, 0.2) 0px 1px 3px 0px` 
+              : "rgba(0, 0, 0, 0.2) 0px 4px 12px",
+            transformStyle: "preserve-3d",
+            transition: "all 0.3s cubic-bezier(0.445, 0.05, 0.55, 0.95)",
+            height: "180px",
+            width:"150px"
+          }}
+        >
+
+          
+          {/* Main image that fills the card */}
+          <div
+            className="w-full h-full transition-all duration-300 absolute top-0 left-0"
+            style={{
+              transformStyle: "preserve-3d"
+            }}
+          >
+            <img
+              src={image || "/api/placeholder/400/320"}
+              alt={name}
+              className="w-full h-full object-cover"
+              style={{
+                filter: "brightness(0.8)"
+              }}
+            />
+            
+            {/* Gradient overlay to make text readable */}
+            <div 
+              className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black to-transparent opacity-90"
+              style={{
+                transformStyle: "preserve-3d"
+              }}
+            />
+          </div>
+          
+          {/* Text content positioned at the bottom of the card */}
+          <div
+            className="absolute bottom-0 left-0 w-full p-4 text-center text-white z-10 depth-4"
+            style={{
+              transform: isHovered ? `translateZ(30px) translateX(${mouseX * 0.05}px) translateY(${mouseY * 0.05}px)` : "translateZ(0)",
+              transformStyle: "preserve-3d",
+              transition: "all 0.3s cubic-bezier(0.445, 0.05, 0.55, 0.95)"
+            }}
+          >
+            <h3 className="font-bold text-md text-white drop-shadow-lg ">{name}</h3>
+            <div className=" items-center text-center text-gray-200 mt-1 text-sm ">
               <span>{time} min away</span>
             </div>
-            {emoji && type && (
-              <div className="mt-1 inline-flex items-center">
-                <span className="mr-1">{emoji}</span> {type}
-              </div>
-            )}
           </div>
+          
+          {/* Get Directions button - hidden but activates on click */}
         </div>
       </div>
-      <div className="bg-black text-white p-3 flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors cursor-pointer">
-        <MapPin className="w-4 h-4" />
-        <span className="text-sm font-medium">Get Directions</span>
-      </div>
-    </div>
-  );
-}
+    );
+  };
 
-// Let's Meet Card
-function LetsMeetCard({ className = "" }) {
-  return (
-    <div className={`${className} bg-white rounded-2xl overflow-hidden shadow-xl p-4 text-black transform rotate-[5deg]`}>
-      <p className="font-bold text-lg mb-2">Let's meet</p>
-      <div className="bg-black text-white px-4 py-2 rounded-full flex items-center justify-center gap-2 text-sm">
-        <MapPin className="w-4 h-4" />
-        <span>6min away</span>
-      </div>
-    </div>
-  );
-}
 
 // QR Code Component
 function QRCodeCard({ className = "" }) {
     return (
-      <div className={`${className} absolute bottom-16 right-8 z-40 flex items-center gap-3 bg-white rounded-2xl p-3 shadow-xl`}>
+      <div className={`${className}  items-center justify-center bottom-0  gap-3 bg-white rounded-[0.5vw] p-2 shadow-xl`}>
         <div className="w-12 h-12 flex-shrink-0">
           {/* QR code image */}
           <img 
@@ -133,7 +447,7 @@ function QRCodeCard({ className = "" }) {
           />
         </div>
         <div>
-          <p className="font-medium text-black text-sm">Get the app now</p>
+          <p className="font-medium text-black text-sm/7">Get the app now</p>
         </div>
       </div>
     );
@@ -154,20 +468,28 @@ function Button({ children, variant = "primary", className = "", icon = null }) 
   );
 }
 
-// App Screen Component
-function AppScreen({ image, alt, className = "", width = "auto" }) {
-  return (
-    
-    <div className={`${className} overflow-hidden rounded-3xl shadow-2xl`}>
-      <img 
-        src={image} 
-        alt={alt} 
-        width={width} 
-        className="w-full h-auto" 
-      />
-    </div>
-  );
-}
+// Enhanced AppScreen Component with Toggle Functionality
+function AppScreen({ image, alt, className = "", width = "auto", isActive = false }) {
+    return (
+      <div 
+        className={`${className} overflow-hidden rounded-3xl shadow-2xl transition-all duration-500`}
+        style={{
+          opacity: isActive ? 1 : 0,
+          transform: isActive ? "translateY(0) scale(1)" : "translateY(20px) scale(0.9)",
+          visibility: isActive ? "visible" : "hidden",
+          transformStyle: "preserve-3d"
+        }}
+      >
+        <img 
+          src={image} 
+          alt={alt} 
+          width={width} 
+          className="w-full h-auto" 
+        />
+      </div>
+    );
+  }
+  
 
 // Input Component for Contact Form
 function Input({ label, type = "text", placeholder, className = "" }) {
@@ -199,101 +521,112 @@ function Textarea({ label, placeholder, rows = 4, className = "" }) {
 
 // Home Page Component
 function HomePage() {
-  return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Main Hero Section */}
-      <main className="py-20 px-8 relative overflow-hidden">
-        <div className="container mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-16">
-            {/* Left Content - Text */}
-            <div className="lg:w-1/2">
-              <h1 className="text-6xl font-bold leading-tight tracking-tight mb-6">
-               Smarter
-                <br />
-                meeting points
-                <br />
-                <span className="bg-gradient-to-r from-green-500 to-teal-400 text-transparent bg-clip-text">
-                  start here.
-                </span>
-              </h1>
+    // State for active app screen
+    const [activeScreen, setActiveScreen] = useState('map'); // 'map' or 'location'
+    
+    // Function to toggle between screens
+    const toggleScreen = () => {
+      setActiveScreen(activeScreen === 'map' ? 'location' : 'map');
+    };
+    
+    return (
+      <div className="min-h-screen bg-black text-white">
+        {/* Main Hero Section */}
+        <main className="py-20 px-8 relative overflow-hidden">
+          <div className="container mx-auto">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-16">
+              {/* Left Content - Text */}
+              <div className="lg:w-1/2">
+                <h1 className="text-6xl font-bold leading-tight tracking-tight mb-6">
+                  Smarter meeting points
+              
+                  <span className=" realtive bg-gradient-to-r  pl-4 from-green-500 to-teal-400 text-transparent bg-clip-text">
+                     start here.
+                  </span>
+                </h1>
+  
+                <p className="text-xl text-gray-300 mb-10 max-w-md">
+                  Find the ideal location between you and your friends, no guesswork needed.
+                </p>
+  
+                <div className="flex gap-4">
+                  <Button icon={<AppleIcon />}>Download App</Button>
+                  <Button variant="secondary">Advertise on Meep</Button>
+                </div>
+              </div>
+  
+              {/* Right Content - Phone Screenshots and Cards */}
+              <div className="lg:w-1/2  flex items-center justify-center relative h-[600px]">
+                {/* Main App Screen - Set Location */}
+                <FollowCard>
 
-              <p className="text-xl text-gray-300 mb-10 max-w-md">
-              Find the ideal location between you and your friends, no guesswork needed.
-              </p>
+                  <div className="content">
 
-              <div className="flex gap-4">
-                <Button icon={<AppleIcon />}>Download App</Button>
-                <Button variant="secondary">Advertise on Meep</Button>
+                  {/* Parallax background elements */}
+                  <div className="parallax-bg">
+                    <div className="absolute top-10 right-0 text-blue-400 text-2xl parallax-reverse depth-4">✦</div>
+                    <div className="absolute top-40 left-0 text-green-400 text-2xl parallax-reverse depth-4">✦</div>
+                    <div className="absolute bottom-20 right-40 text-purple-400 text-2xl parallax-reverse depth-4">✦</div>
+                  </div>
+                      {/* App Screen - Location Setting */}
+                    <AppScreen 
+                      image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.02.59-WPEMLI0GQCZcs6NFZ7TxCkgDPfrO6o.png"
+                      alt="Set meeting point interface"
+                      className="absolute right-0 -top-16  w-72 transform  depth-5"
+                      isActive={activeScreen === 'location'}
+                    />
+  
+                    {/* App Screen - Map View */}
+                    <AppScreen 
+                      image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.03.41-8tVWKuWU6bglTPa32JhlUZiGqCm3hf.png"
+                      alt="Map view with meeting points"
+                      className="absolute -right-8 -top-16 w-72 transform depth-5"
+                      isActive={activeScreen === 'map'}
+                    />
+  
+                    {/* Additional floating emoji indicators using custom images */}
+  
+                    {/* Washington Square Park */}
+                    <VenueCard 
+                      image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Washington_Square_Arch-Isabella%20%281%29.jpg-Tk9HrgJpEQSaSg5H4DvC6LYKByQW7B.jpeg"
+                      name="Washington Square Park"
+                      time="16"
+                      type="Park"
+                      emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-2q7TGSGt47nkaouGs0DwB9h0gg6eix.png"
+                      className="absolute top-48 right-10   w-48 transform z-30 depth-2"
+                    />
+  
+                    {/* Odd Sister */}
+                    <VenueCard
+                      image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-POwskuVhjC49iep7kfVJ6mqcBpAh6U.png" 
+                      name="Odd Sister"
+                      time="12"
+                      type="Bar"
+                      emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JBbuSJn72ovTW1nABeBSEWfsNKbEB0.png"
+                      className="absolute left-80 -top-40 w-40 transform z-30 depth-2"
+                    />
+  
+                    {/* The Butcher's Daughter */}
+                    <VenueCard
+                      image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pexels-vlada-karpovich-4451741.jpg-iUKohW0D7zeSipXgDaE1jHRG9ZmF2J.jpeg"
+                      name="The Butcher's Daughter"
+                      time="8"
+                      type="Restaurant"
+                      emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ECW9CxGaV0gga9kZmcNIX4qqPkvPtg.png"
+                      className="absolute left-80 bottom-6 w-40 transform z-30 depth-2"
+                    />
+                  </div>
+                </FollowCard>
               </div>
             </div>
-
-            {/* Right Content - Phone Screenshots and Cards */}
-            <div className="lg:w-1/2 relative h-[600px]">
-              {/* Main App Screen - Set Location */}
-              <FollowCard>
-              <AppScreen 
-                image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.02.59-WPEMLI0GQCZcs6NFZ7TxCkgDPfrO6o.png"
-                alt="Set meeting point interface"
-                className="absolute right-0 top-0 w-60 transform rotate-[2deg] z-20"
-              />
-
-              {/* Secondary App Screen - Map View */}
-              <AppScreen 
-                image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.03.41-8tVWKuWU6bglTPa32JhlUZiGqCm3hf.png"
-                alt="Map view with meeting points"
-                className="absolute right-32 bottom-0 w-72 z-10"
-              />
-
-              {/* Venue Card - Washington Square */}
-              <VenueCard
-                image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-4-iutEQRGewfHs6hzJyGt0v6G7RTtnlL.png"
-                name="Washington Square Park"
-                time="22"
-                type="Park"
-                emoji="🌳"
-                className="absolute left-0 top-20 w-64 z-30 rotate-[-5deg]"
-              />
-
-              {/* Venue Card - Grand Street */}
-              <VenueCard
-                image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-3-DOeYjRPfqMC1BqBHFQnvWcrbleXgfb.png"
-                name="Grand Street"
-                time="17"
-                type="Metro"
-                emoji="🚇"
-                className="absolute left-40 top-40 w-64 transform rotate-[3deg] z-30"
-              />
-
-              {/* Venue Card - Izakaya */}
-              <VenueCard
-                image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-1-G6j41V3tdc1L3YMtrP8dgJ2KDFKO9n.png"
-                name="Izakaya Toribar"
-                time="22"
-                type="Restaurants"
-                emoji="🍽️"
-                className="absolute right-0 bottom-80 w-64 transform rotate-[8deg] z-30"
-              />
-
-              {/* Let's Meet Card */}
-              <LetsMeetCard 
-                className="absolute left-20 bottom-0 w-48 z-30"
-              />
-
-              {/* Decorative Elements */}
-              <div className="absolute top-10 right-0 text-blue-400 text-2xl">✦</div>
-              <div className="absolute bottom-40 left-40 text-green-400 text-2xl">✦</div>
-
-              </FollowCard>
-            </div>
           </div>
-        </div>
-
-        {/* QR Code at bottom left */}
-        <QRCodeCard className="absolute  z-40" />
-      </main>
-    </div>
-  );
-}
+  
+          {/* QR Code at bottom left */}
+          <QRCodeCard className="fixed bottom-24  flex z-40" />
+        </main>
+      </div>
+    );
+  }
 
 // Contact Page Component
 function ContactPage() {
@@ -406,6 +739,9 @@ function MeepEarth() {
           letter-spacing: -0.025em;
         }
       `}</style>
+
+            {/* Add global styles */}
+            <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       
       {/* Header */}
       <header className="py-6 px-8">
@@ -425,9 +761,9 @@ function MeepEarth() {
           </div>
 
           <div className="flex items-center gap-8">
-            <a href="#" className="hover:text-gray-300 transition-colors">Jobs</a>
+            {/* <a href="#" className="hover:text-gray-300 transition-colors">Jobs</a>
             <a href="#" className="hover:text-gray-300 transition-colors">Blog</a>
-            <a href="#" className="hover:text-gray-300 transition-colors">About</a>
+            <a href="#" className="hover:text-gray-300 transition-colors">About</a> */}
             <a 
               href="#" 
               className="hover:text-gray-300 transition-colors"
@@ -436,7 +772,7 @@ function MeepEarth() {
                 navigateTo('contact');
               }}
             >
-              Contact
+              Advertise on Meep
             </a>
             <Button icon={<AppleIcon />}>Download App</Button>
           </div>
@@ -447,7 +783,7 @@ function MeepEarth() {
       {currentPage === 'home' ? <HomePage /> : <ContactPage />}
 
       {/* Footer */}
-      <footer className="py-6 px-8 border-t border-gray-800">
+      <footer className=" fixed  bottom-0  w-full py-6 px-8 border-t border-gray-800">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
             <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">What's New</a>
