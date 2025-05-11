@@ -1,3 +1,4 @@
+// FlipCard.js - Place this in a separate file
 import React, { useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useAnimation } from "framer-motion";
 
@@ -53,8 +54,11 @@ function FlipCard({ front, back, className = "", depth = 6 }) {
     setIsHovering(false);
   };
   
-  // Handle card flip
-  const handleFlip = () => {
+  // Handle card flip with explicit event handling
+  const handleFlip = (e) => {
+    // Ensure the event doesn't propagate to parent elements
+    e.stopPropagation();
+    
     // Reset any tilt before flipping
     x.set(0);
     y.set(0);
@@ -94,14 +98,18 @@ function FlipCard({ front, back, className = "", depth = 6 }) {
 
   return (
     <div 
-      className={`relative w-full h-full ${className}`} 
+      className={`relative w-full h-full perspective-1000 ${className}`} 
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={handleMouseLeave}
+      onClick={handleFlip} // Add explicit click handler at top level
+      style={{ 
+        perspective: 1200,
+      }}
     >
       {/* Flip indicator icon that appears on hover */}
       {isHovering && !isFlipped && (
-        <div className="absolute top-4 right-4 z-50 animate-pulse">
+        <div className="absolute top-4 right-4 z-50 animate-pulse pointer-events-none">
           <svg 
             width="24" 
             height="24" 
@@ -122,12 +130,10 @@ function FlipCard({ front, back, className = "", depth = 6 }) {
       )}
       
       <motion.div
-        className="perspective-1000 w-full h-full relative cursor-pointer"
+        className="w-full h-full relative cursor-pointer"
         style={{ 
-          perspective: 1200,
           transformStyle: "preserve-3d",
         }}
-        onClick={handleFlip}
         animate={controls}
       >
         {/* The card container with 3D rotation */}
