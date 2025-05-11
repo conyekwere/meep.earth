@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appID": "7W8JZ4GWA.com.chima.Meep-Foundation",
+        "paths": ["/share*"]
+      }
+    ]
+  },
+  "appclips": {
+    "apps": ["P7W8JZ4GWA.com.chima.Meep-Foundation.Clip"]
+  },
+  "webcredentials": {
+    "apps": ["P7W8JZ4GWA.com.chima.Meep-Foundation"]
+  },
+
+}
