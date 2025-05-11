@@ -697,6 +697,8 @@ function HomePage() {
                       className="absolute right-0 -top-16 w-72 transform depth-5"
                       isActive={activeScreen === 'map'}
                     />
+
+
   
                     {/* Additional floating emoji indicators using custom images */}
   
