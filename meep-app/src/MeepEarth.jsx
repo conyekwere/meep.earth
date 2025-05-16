@@ -664,8 +664,11 @@ function HomePage() {
                 </p>
   
                 <div className="flex gap-4">
-                  <Button icon={<AppleIcon />}>Download App</Button>
-                  <Button variant="secondary">Advertise on Meep</Button>
+                  {/* <Button icon={<AppleIcon />}>Download App</Button> */}
+            <a href="https://tally.so/r/wvbPWd" target="_blank" rel="noopener noreferrer">
+              <Button>Join the Waitlist</Button>
+            </a>
+                  {/* <Button variant="secondary">Advertise on Meep</Button> */}
                 </div>
               </div>
   
@@ -738,7 +741,7 @@ function HomePage() {
           </div>
   
           {/* QR Code at bottom left */}
-          <QRCodeCard className="fixed bottom-24  flex z-40" />
+          {/* <QRCodeCard className="fixed bottom-24  flex z-40" /> */}
         </main>
       </div>
     );
@@ -880,7 +883,7 @@ function MeepEarth() {
             {/* <a href="#" className="hover:text-gray-300 transition-colors">Jobs</a>
             <a href="#" className="hover:text-gray-300 transition-colors">Blog</a>
             <a href="#" className="hover:text-gray-300 transition-colors">About</a> */}
-            <a 
+            {/* <a 
               href="#" 
               className="hover:text-gray-300 transition-colors"
               onClick={(e) => {
@@ -889,8 +892,12 @@ function MeepEarth() {
               }}
             >
               Advertise on Meep
+            </a> */}
+            <a href="https://tally.so/r/wvbPWd" target="_blank" rel="noopener noreferrer">
+              <Button>Join the Waitlist</Button>
             </a>
-            <Button icon={<AppleIcon />}>Download App</Button>
+            {/* <Button icon={<AppleIcon />}>Download App</Button> */}
+            
           </div>
         </div>
       </header>
