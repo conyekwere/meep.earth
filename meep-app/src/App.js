@@ -1,6 +1,6 @@
 // App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import MeepEarth from './MeepEarth';
 import SharePage from './SharePage';
 import TermsPage from './TermsPage';
@@ -19,7 +19,7 @@ function App() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         
-        {/* Your main app routes - comment out for now if MainApp doesn't exist */}
+        {/* Your main app routes -- comment out for now if MainApp doesn't exist */}
         {/* <Route path="/app/*" element={<MainApp />} /> */}
         
         {/* 404 fallback */}
