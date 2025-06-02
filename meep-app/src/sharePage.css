@@ -1,0 +1,150 @@
+/* SharePage.css */
+.share-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.share-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.share-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.share-card .logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: #f3f4f6;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-card h1 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.share-card .subtitle {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.share-card .user-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.share-card .user-info .user-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.share-card .loading {
+  margin: 30px 0;
+}
+
+.share-card .loading .spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 10px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.share-card .loading p {
+  color: #666;
+  font-size: 14px;
+}
+
+.share-card .error {
+  color: #e74c3c;
+  margin: 20px 0;
+  padding: 15px;
+  background: #fee;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.share-card .actions {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.share-card .secondary-button {
+  background: transparent;
+  border: 2px solid #667eea;
+  color: #667eea;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.share-card .secondary-button:hover {
+  background: #667eea;
+  color: white;
+}
+
+.share-card .app-store-button {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.share-card .app-store-button:hover {
+  transform: scale(1.05);
+}
+
+.share-card .app-store-button img {
+  height: 50px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .share-card {
+    padding: 30px 20px;
+  }
+  
+  .share-card h1 {
+    font-size: 24px;
+  }
+  
+  .share-card .subtitle {
+    font-size: 14px;
+  }
+}

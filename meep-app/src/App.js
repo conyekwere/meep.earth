@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+// App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import MeepEarth from './MeepEarth';
+import SharePage from './SharePage';
+import TermsPage from './TermsPage';
+import PrivacyPolicyPage from './PrivacyPolicyPage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        {/* Landing page route */}
+        <Route path="/" element={<MeepEarth />} />
+        
+        {/* Share page for App Clip */}
+        <Route path="/share" element={<SharePage />} />
+        
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        
+        {/* Your main app routes - comment out for now if MainApp doesn't exist */}
+        {/* <Route path="/app/*" element={<MainApp />} /> */}
+        
+        {/* 404 fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
