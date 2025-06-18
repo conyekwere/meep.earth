@@ -909,9 +909,9 @@ function MeepEarth() {
       <footer className=" fixed  bottom-0  w-full py-6 px-8 border-t border-gray-800">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
-            {/* <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">What's New</a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Help</a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy</a> */}
+            {/* <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">What's New</a>*/}
+            <a href="https://tally.so/r/wagLMB" target="_blank" className="text-gray-400 hover:text-white transition-colors text-sm">Help</a>
+            <a href="#privacy" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy</a> 
           </div>
           <div className="text-gray-400 text-sm">
             © {new Date().getFullYear()} Meep
