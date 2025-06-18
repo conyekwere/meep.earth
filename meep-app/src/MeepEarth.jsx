@@ -914,7 +914,7 @@ function MeepEarth() {
             <a href="#privacy" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy</a> 
           </div>
           <div className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} Meep
+            © {new Date().getFullYear()} Chima Onyekwere
           </div>
         </div>
       </footer>
