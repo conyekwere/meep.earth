@@ -664,9 +664,9 @@ function HomePage() {
                 </p>
   
                 <div className="flex gap-4">
-                  {/* <Button icon={<AppleIcon />}>Download App</Button> */}
-            <a href="https://tally.so/r/wvbPWd" target="_blank" rel="noopener noreferrer">
-              <Button>Join the Waitlist</Button>
+                  {/*<Button>Join the Waitlist</Button>*/}
+            <a href="https://apps.apple.com/us/app/meep-meet-people-places/id6743687284" target="_blank" rel="noopener noreferrer">
+              <Button icon={<AppleIcon />}>Download App</Button> 
             </a>
                   {/* <Button variant="secondary">Advertise on Meep</Button> */}
                 </div>
@@ -893,10 +893,10 @@ function MeepEarth() {
             >
               Advertise on Meep
             </a> */}
-            <a href="https://tally.so/r/wvbPWd" target="_blank" rel="noopener noreferrer">
-              <Button>Join the Waitlist</Button>
+            <a href="https://apps.apple.com/us/app/meep-meet-people-places/id6743687284" target="_blank" rel="noopener noreferrer">
+              <Button icon={<AppleIcon />}>Download App</Button> 
             </a>
-            {/* <Button icon={<AppleIcon />}>Download App</Button> */}
+            {/* <Button icon={<AppleIcon />}>Download App</Button>    <Button>Join the Waitlist</Button*/}
             
           </div>
         </div>
