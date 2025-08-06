@@ -894,7 +894,7 @@ function MeepEarth() {
               Advertise on Meep
             </a> */}
             <a href="https://apps.apple.com/us/app/meep-meet-people-places/id6743687284" target="_blank" rel="noopener noreferrer">
-              <Button icon={<AppleIcon />}>Download App</Button> 
+              <Button icon={<AppleIcon />}>Download App </Button> 
             </a>
             {/* <Button icon={<AppleIcon />}>Download App</Button>    <Button>Join the Waitlist</Button*/}
             
@@ -914,7 +914,7 @@ function MeepEarth() {
             <a href="#privacy" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy</a> 
           </div>
           <div className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} Chima Onyekwere
+            © {new Date().getFullYear()} Meep
           </div>
         </div>
       </footer>
