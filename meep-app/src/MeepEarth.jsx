@@ -894,7 +894,7 @@ function MeepEarth() {
               Advertise on Meep
             </a> */}
             <a href="https://apps.apple.com/us/app/meep-meet-people-places/id6743687284" target="_blank" rel="noopener noreferrer">
-              <Button icon={<AppleIcon />}>Download App </Button> 
+              <Button icon={<AppleIcon />}>Download App</Button> 
             </a>
             {/* <Button icon={<AppleIcon />}>Download App</Button>    <Button>Join the Waitlist</Button*/}
             
