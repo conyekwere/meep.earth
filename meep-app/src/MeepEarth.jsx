@@ -11,7 +11,8 @@ const globalStyles = `
     transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: transform; /* Performance optimization */
   }
-  
+  footer{
+  background:#000}
   .card {
     position: relative;
     transform-style: preserve-3d;
@@ -168,7 +169,7 @@ function FollowCardWithFlip() {
     );
     
     return (
-      <FollowCard className="w-80 h-[600px]">
+     <FollowCard className="w-full max-w-xs sm:max-w-sm md:w-80 h-[480px] sm:h-[560px] md:h-[600px]">
         <div className="w-full h-full flex items-center justify-center">
           <div className="w-full h-[85%] relative">
             <FlipCard
@@ -284,7 +285,7 @@ function FollowCard({ children, className = "" }) {
     return (
       <motion.div
         ref={ref}
-        className={`w-1/2 card-wrap ${className}`}
+        className={`w-full md:w-1/2 card-wrap ${className}`}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleMouseLeave}
@@ -646,12 +647,12 @@ function HomePage() {
     return (
       <div className="min-h-screen bg-black text-white">
         {/* Main Hero Section */}
-        <main className="py-20 px-8 relative overflow-hidden">
+        <main className="py-16 px-4 sm:px-8 relative overflow-hidden">
           <div className="container mx-auto">
             <div className="flex flex-col lg:flex-row lg:items-center gap-16">
               {/* Left Content - Text */}
               <div className="lg:w-1/2">
-                <h1 className="text-6xl font-bold leading-tight tracking-tight mb-6">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight mb-6">
                   Smarter meeting points
               
                   <span className=" realtive bg-gradient-to-r  pl-4 from-green-500 to-teal-400 text-transparent bg-clip-text">
@@ -659,7 +660,7 @@ function HomePage() {
                   </span>
                 </h1>
   
-                <p className="text-xl text-gray-300 mb-10 max-w-md">
+                <p className="text-base sm:text-lg lg:text-xl text-gray-300 mb-10 max-w-md">
                   Find the ideal location between you and your friends, no guesswork needed.
                 </p>
   
@@ -673,14 +674,14 @@ function HomePage() {
               </div>
   
               {/* Right Content - Phone Screenshots and Cards */}
-              <div className="lg:w-1/2  flex items-center justify-center relative h-[600px]">
+             <div className="lg:w-1/2 flex items-center justify-center relative h-[420px] sm:h-[520px] md:h-[600px]">
                 {/* Main App Screen - Set Location */}
                 <FollowCard>
 
                   <div className="content">
 
                   {/* Parallax background elements */}
-                  <div className="parallax-bg">
+                  <div className="parallax-bg hidden md:block">
                     <div className="absolute top-10 -right-20 text-blue-400 text-2xl parallax-reverse depth-4">✦</div>
                     <div className="absolute top-40 -left-20 text-green-400 text-2xl parallax-reverse depth-4">✦</div>
                     <div className="absolute -bottom-96  left-10 text-purple-400 text-2xl parallax-reverse depth-4">✦</div>
@@ -689,7 +690,7 @@ function HomePage() {
                     <AppScreen 
                       image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.02.59-WPEMLI0GQCZcs6NFZ7TxCkgDPfrO6o.png"
                       alt="Set meeting point interface"
-                      className="absolute right-0 -top-16  w-72 transform  depth-5"
+                      className="absolute right-0 -top-8 sm:-top-12 md:-top-16 w-56 sm:w-64 md:w-72 transform depth-5"
                       isActive={activeScreen === 'location'}
                     />
   
@@ -697,7 +698,7 @@ function HomePage() {
                     <AppScreen 
                       image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Simulator%20Screenshot%20-%20iPhone%2016%20Plus%20-%202025-03-24%20at%2023.03.41-8tVWKuWU6bglTPa32JhlUZiGqCm3hf.png"
                       alt="Map view with meeting points"
-                      className="absolute right-0 -top-16 w-72 transform depth-5"
+                      className="absolute right-0 -top-8 sm:-top-12 md:-top-16 w-56 sm:w-64 md:w-72 transform depth-5"
                       isActive={activeScreen === 'map'}
                     />
 
@@ -712,7 +713,7 @@ function HomePage() {
                       time="16"
                       type="Park"
                       emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-2q7TGSGt47nkaouGs0DwB9h0gg6eix.png"
-                      className="absolute top-48 right-20   w-48 transform z-30 depth-2"
+                      className="hidden md:block absolute top-48 right-20 w-48 transform z-30 depth-2"
                     />
   
                     {/* Odd Sister */}
@@ -722,7 +723,7 @@ function HomePage() {
                       time="12"
                       type="Bar"
                       emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JBbuSJn72ovTW1nABeBSEWfsNKbEB0.png"
-                      className="absolute left-72 -top-40 w-40 transform z-30 depth-2"
+                      className="hidden md:block absolute left-72 -top-40 w-40 transform z-30 depth-2"
                     />
   
                     {/* The Butcher's Daughter */}
@@ -732,7 +733,7 @@ function HomePage() {
                       time="8"
                       type="Restaurant"
                       emojiImage="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-ECW9CxGaV0gga9kZmcNIX4qqPkvPtg.png"
-                      className="absolute left-72 bottom-6 w-40 transform z-30 depth-2"
+                      className="hidden md:block absolute left-72 bottom-6 w-40 transform z-30 depth-2"
                     />
                   </div>
                 </FollowCard>
@@ -863,7 +864,7 @@ function MeepEarth() {
             <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
       
       {/* Header */}
-      <header className="py-6 px-8">
+      <header className="py-4 px-4 sm:px-8">
         <div className="container mx-auto flex justify-between items-center">
           <div 
             className="flex items-center gap-2 cursor-pointer" 
@@ -906,7 +907,7 @@ function MeepEarth() {
       {currentPage === 'home' ? <HomePage /> : <ContactPage />}
 
       {/* Footer */}
-      <footer className=" fixed  bottom-0  w-full py-6 px-8 border-t border-gray-800">
+     <footer className="md:fixed bottom-0 w-full py-6 px-4 sm:px-8 border-t border-gray-800">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
             {/* <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">What's New</a>*/}
